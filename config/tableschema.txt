@@ -1,0 +1,83 @@
+-- 1. Users Table
+CREATE TABLE Users (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    Email VARCHAR(150) UNIQUE NOT NULL,
+    Height DECIMAL(5, 2),
+    Weight DECIMAL(5, 2),
+    Age INT,
+    WeeklyBudget DECIMAL(10, 2)
+);
+
+-- 2. Ingredient Table
+CREATE TABLE Ingredient (
+    IngredientID INT AUTO_INCREMENT PRIMARY KEY,
+    FoodItem VARCHAR(255) NOT NULL,
+    Category VARCHAR(100),
+    Calories DECIMAL(10, 2),
+    Protein DECIMAL(10, 2),
+    Carbohydrates DECIMAL(10, 2),
+    Fat DECIMAL(10, 2),
+    Fiber DECIMAL(10, 2),
+    Sugars DECIMAL(10, 2),
+    Sodium DECIMAL(10, 2),
+    Cholesterol DECIMAL(10, 2),
+    MealType VARCHAR(50),
+    WaterIntake INT
+);
+
+-- 3. Recipe Table (Core metadata)
+CREATE TABLE Recipe (
+    RecipeID INT AUTO_INCREMENT PRIMARY KEY,
+    RecipeName VARCHAR(255) NOT NULL,
+    PrepTime INT,
+    CookTime INT,
+    TotalTime INT,
+    Servings INT,
+    Yield INT,
+    Ratings FLOAT
+);
+
+-- 4. RecipeDirections Table (Decomposed for BCNF)
+CREATE TABLE RecipeDirections (
+    RecipeID INT NOT NULL,
+    StepNumber INT NOT NULL,
+    Instruction TEXT NOT NULL,
+    PRIMARY KEY (RecipeID, StepNumber),
+    FOREIGN KEY (RecipeID) REFERENCES Recipe(RecipeID) ON DELETE CASCADE
+);
+
+-- 5. Contains Table (Junction for Recipe/Ingredient)
+CREATE TABLE Contains (
+    RecipeID INT NOT NULL,
+    IngredientID INT NOT NULL,
+    Quantity VARCHAR(50),
+    PRIMARY KEY (RecipeID, IngredientID),
+    FOREIGN KEY (RecipeID) REFERENCES Recipe(RecipeID) ON DELETE CASCADE,
+    FOREIGN KEY (IngredientID) REFERENCES Ingredient(IngredientID) ON DELETE CASCADE
+);
+
+-- 6. MealPlans Table (Refined for BCNF and unique slots)
+CREATE TABLE MealPlans (
+    PlanID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    RecipeID INT NOT NULL,
+    WeekOf DATE NOT NULL,
+    DayOfWeek TINYINT NOT NULL CHECK (DayOfWeek BETWEEN 1 AND 7),
+    MealType ENUM('Breakfast', 'Lunch', 'Dinner', 'Snack') NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (RecipeID) REFERENCES Recipe(RecipeID) ON DELETE CASCADE,
+    CONSTRAINT unique_meal_slot UNIQUE (UserID, WeekOf, DayOfWeek, MealType)
+);
+
+-- 7. Likes Table (User favorites)
+CREATE TABLE Likes (
+    UserID INT NOT NULL,
+    RecipeID INT NOT NULL,
+    PRIMARY KEY (UserID, RecipeID),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (RecipeID) REFERENCES Recipe(RecipeID) ON DELETE CASCADE
+);

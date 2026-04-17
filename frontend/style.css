@@ -1,0 +1,17 @@
+:root {
+    --primary: #2d3436;
+    --accent: #00b894;
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --text-muted: #636e72;
+}
+
+body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--primary); margin: 0; }
+.container { max-width: 900px; margin: 40px auto; padding: 20px; }
+.card { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; }
+.btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; transition: 0.3s; font-weight: 600; text-decoration: none; display: inline-block; }
+.btn-primary { background-color: var(--accent); color: white; }
+.btn-primary:hover { background-color: #009476; }
+.btn-danger { background-color: #ff7675; color: white; }
+input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+.recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }

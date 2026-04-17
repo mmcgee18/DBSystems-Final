@@ -1,279 +1,111 @@
-<?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: index.php');
-    exit();
-}
-require_once '../includes/database_functions.php';
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        .window {
-            width: 100dvw;
-            height: 100dvh;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, red, green);
-            background-repeat: no-repeat;
-            background-size: cover;
-            display: flex;
-            align-items: center;
-            justify-self: center;
-            flex-direction: column;
-        }
-
-        .title {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: 50px;
-        }
-
-        .title > h1 {
-            font-size: 4.5rem;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            margin: 0;
-            text-align: center;
-        }
-
-        .title > img {
-            height: 200px;
-            width: auto;
-            margin-top: 20px;
-        }
-
-        .arc {
-            display: inline-block;
-            transform: perspective(250px) rotateX(25deg);
-            transform-style: preserve-3d;
-            padding: 20px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: color-cycle 3s linear infinite;
-        }
-        @keyframes color-cycle {
-            0% { color: #ff0000; }
-            16% { color: white; }
-            33% { color: green; }
-            50% { color: red; }
-            66% { color: white; }
-            83% { color: green; }
-            100% { color: red; }
-        }
-
-        .move {
-            animation: move 5s infinite ease-in-out, rotate 3s infinite ease-in-out;
-            animation-composition: add;
-        }
-        @keyframes move {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-30px); }
-            100% { transform: translateY(0); }
-        }
-        @keyframes rotate {
-            0% { transform: rotate(2.5deg); }
-            50% { transform: rotate(-2.5deg); }
-            100% { transform: rotate(2.5deg); }
-        }
-
-        .content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: 50px;
-            gap: 20px;
-        }
-
-        .content > button {
-            width: 400px;
-            height: 45px;
-            font-size: 1.3rem;
-            color: white;
-            background-color: rgba(0, 0, 0, 0.6);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-            transition: background-color 0.3s, transform 0.3s;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .content > button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-            transform: scale(1.05);
-        }
-
-        .content > .info-btn:active ~ .info{
-            opacity: 1;
-        }
-
-        .info {
-            position: absolute;
-            width: 375px;
-            height: 425px;
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            opacity: 0; /* Change to 0, 100 for testing */
-
-            font-family: 'Poppins', sans-serif;
-            font-size: 15px;
-            line-height: 1.7;
-            color: #2d3748;
-            font-weight: 400;
-            letter-spacing: 0.02em;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .info h2 {
-            text-align: center;
-        }
-
-        .left {
-            left: 20px;
-            top: 20px;
-            height: 450px;
-        }
-
-        .right {
-            right: 20px;
-            top: 20px;
-        }
-
-        .snow-rain-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .snow {
-            position: absolute;
-            font-size: 30px;
-            top: -50px;
-            animation: fall linear infinite;
-        }
-
-        .snow:nth-child(1) { left: 10%; animation-duration: 7s; animation-delay: 0.5s; }
-        .snow:nth-child(2) { left: 20%; animation-duration: 6s; animation-delay: 1s; }
-        .snow:nth-child(3) { left: 30%; animation-duration: 5s; animation-delay: 0.5s; }
-        .snow:nth-child(4) { left: 40%; animation-duration: 9s; animation-delay: 1.5s; }
-        .snow:nth-child(5) { left: 50%; animation-duration: 5.5s; animation-delay: 1.2s; }
-        .snow:nth-child(6) { left: 60%; animation-duration: 7.5s; animation-delay: 0.8s; }
-        .snow:nth-child(7) { left: 70%; animation-duration: 4.5s; animation-delay: 1s; }
-        .snow:nth-child(8) { left: 80%; animation-duration: 5.8s; animation-delay: 1.2s; }
-        .snow:nth-child(9) { left: 90%; animation-duration: 8.2s; animation-delay: 0.3s; }
-        .snow:nth-child(10) { left: 55%; animation-duration: 4.2s; animation-delay: 0.3s; }
-        .snow:nth-child(11) { left: 33%; animation-duration: 5.2s; animation-delay: 0.3s; }
-
-        @keyframes fall {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            80% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-    </style>
-</head>
-<body>
-
-    <div class="window">
-
-        <div class="title">
-            <h1 class="arc">N-Puzzle Game</h1>
-            <img class="move" src="reindeer2.webp" alt="Reindeer Image">
-        </div>
-
-        <div class="content">
-            <button class="play-btn" onclick="document.location='game.php'"><h1>PLAY</h1></button>
-            <button class="stats-btn" onclick="document.location='stats.php'"><h1>STATISTICS</h1></button>
-            <button class="info-btn"><h1>INFO</h1></button>
-            <button class="logout-btn" onclick="document.location='logout.php'"><h1>SIGN OUT</h1></button>
-
-            <div class="info left">
-                <h2>Project Title: <span style="color: green;">N-Puzzle</span></h2>
-                <h2>Project Description</h2>
-                <p>An HTML, CSS, and JS based game mimicking the classic N-puzzle game. This features a rearranged tile picture,
-                    in a multitude of Christmas themes with varying images. Achievements are unlocked player by player and tracked
-                    using the database management system.
-                </p>
-                <h2>Team Members</h2>
-                <ul>
-                    <li>Lead: Matthew</li>
-                    <li>Max</li>
-                    <li>Jasnoor</li>
-                </ul>                
-            </div>
-            <div class="info right">
-                <h1><?php echo htmlspecialchars($_SESSION['user_id']); ?>: <?php echo htmlspecialchars($_SESSION['username']); ?></h1>
-                <h2>Rules</h2>
-                <ol>
-                    <li>See how to play below.</li>
-                    <li>Remember, its a game, don't be mad if it's hard.</li>
-                    <li>Have fun!</li>
-                </ol>                
-                <h2>HomePage Instructions</h2>
-                <ul>
-                    <li>Click the PLAY button to begin playing.</li>
-                    <li>Click and Hold INFO to see additional information about the game and its functions.</li>
-                </ul>
-            </div>
+<?php 
+session_start(); 
+if (!isset($_SESSION['user_id'])) { 
+    header('Location: index.php'); 
+    exit(); 
+} 
+require_once '../includes/database_functions.php'; 
+?> 
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Culinary Compass | Homepage</title> 
+    <link href="https://googleapis.com" rel="stylesheet"> 
+    <style> 
+        body, html { margin: 0; padding: 0; overflow: hidden; font-family: 'Poppins', sans-serif; } 
         
-        </div>
-    
-    </div>
+        .window { 
+            width: 100vw; height: 100vh; 
+            background: linear-gradient(135deg, #74b9ff, #55efc4); 
+            display: flex; align-items: center; justify-content: center; flex-direction: column; 
+        } 
 
-    <div class="snow-rain-container">
-        <div class="snow">❄️</div>
-        <div class="snow">🎄</div>
-        <div class="snow">☃️</div>
-        <div class="snow">❄️</div>
-        <div class="snow">🦌</div>
-        <div class="snow">❄️</div>
-        <div class="snow">🎅</div>
-        <div class="snow">🎄</div>
-        <div class="snow">☃️</div>
-        <div class="snow">❄️</div>
-        <div class="snow">🦌</div>
-        <div class="snow">☃️</div>
-        <div class="snow">🎄</div>
-        <div class="snow">❄️</div>
-    </div>
+        .title { display: flex; flex-direction: column; align-items: center; margin-top: 20px; } 
+        .title > h1 { 
+            font-size: 4rem; color: white; 
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2); margin: 0; 
+        } 
+        
+        .title > img { height: 180px; width: auto; margin-top: 10px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
 
-</body>
+        /* Animation for the food icon */
+        .move { animation: float 4s infinite ease-in-out; } 
+        @keyframes float { 
+            0%, 100% { transform: translateY(0) rotate(0deg); } 
+            50% { transform: translateY(-20px) rotate(5deg); } 
+        } 
+
+        .content { display: flex; flex-direction: column; align-items: center; margin-top: 40px; gap: 15px; } 
+        
+        button { 
+            width: 350px; padding: 15px; font-size: 1.2rem; 
+            color: white; background: rgba(255, 255, 255, 0.2); 
+            border: 2px solid white; border-radius: 15px; cursor: pointer; 
+            backdrop-filter: blur(5px); transition: 0.3s; 
+        } 
+        button:hover { background: white; color: #00b894; transform: translateY(-3px); } 
+
+        /* Info Panel Logic */
+        .info-btn:active ~ .info { opacity: 1; pointer-events: auto; } 
+        
+        .info { 
+            position: absolute; width: 320px; background: white; 
+            border-radius: 20px; padding: 25px; opacity: 0; 
+            transition: 0.3s; pointer-events: none;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); color: #2d3436; 
+        } 
+        .left { left: 40px; top: 100px; } 
+        .right { right: 40px; top: 100px; } 
+
+        /* Floating Veggies (formerly snow) */
+        .floating-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; }
+        .item { position: absolute; font-size: 25px; top: -50px; animation: fall linear infinite; }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(360deg); }
+        }
+    </style> 
+</head> 
+<body> 
+    <div class="window"> 
+        <div class="title"> 
+            <h1>Culinary Compass</h1> 
+            <img class="move" src="https://flaticon.com" alt="Meal Icon"> 
+        </div> 
+
+        <div class="content"> 
+            <button onclick="location.href='ingredient.php'">INGREDIENTS</button> 
+            <button onclick="location.href='recipes.php'">RECIPE BOOK</button> 
+            <button class="info-btn">DASHBOARD INFO</button> 
+            <button onclick="location.href='logout.php'">LOGOUT</button> 
+
+            <!-- Info Panels -->
+            <div class="info left"> 
+                <h3 style="color: #00b894;">Webpage Summary</h3> 
+                <p>Track your health metrics, manage grocery lists, and organize your weekly meals in one place.</p> 
+                <strong>Current Goal:</strong> <span>Maintain Weight</span>
+            </div> 
+
+            <div class="info right"> 
+                <h3>User: <?php echo htmlspecialchars($_SESSION['username']); ?></h3> 
+                <hr>
+                <p><strong>Tips:</strong><br>
+                1. Add recipes to save time.<br>
+                2. Use the "Generate List" tool to automatically make a weeks worth of recipes meeting your specified needs.<br>
+                3. Stay hydrated!</p>
+            </div> 
+        </div> 
+    </div> 
+
+    <!-- Decorative Floating Food Items -->
+    <div class="floating-container"> 
+        <div class="item" style="left:10%; animation-duration:8s;">🥗</div> 
+        <div class="item" style="left:25%; animation-duration:6s;">🍎</div> 
+        <div class="item" style="left:45%; animation-duration:9s;">🥑</div> 
+        <div class="item" style="left:65%; animation-duration:7s;">🥦</div> 
+        <div class="item" style="left:85%; animation-duration:10s;">🍗</div> 
+    </div> 
+</body> 
 </html>
