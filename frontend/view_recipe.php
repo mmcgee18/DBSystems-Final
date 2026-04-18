@@ -1,49 +1,33 @@
 <?php 
 require_once '../includes/database_functions.php';
 $id = (int)$_GET['id'];
-
-// Fetch Recipe
-$stmt = $conn->prepare("SELECT * FROM Recipe WHERE RecipeID = ?");
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$recipe = $stmt->get_result()->fetch_assoc();
-
-// Fetch Ingredients using JOIN
-$sqlIng = "SELECT i.FoodItem, c.Quantity FROM Contains c JOIN Ingredient i ON c.IngredientID = i.IngredientID WHERE c.RecipeID = ?";
-$stmtIng = $conn->prepare($sqlIng);
-$stmtIng->bind_param("i", $id);
-$stmtIng->execute();
-$ingredients = $stmtIng->get_result();
-
-// Fetch Directions
-$stmtStep = $conn->prepare("SELECT * FROM RecipeDirections WHERE RecipeID = ? ORDER BY StepNumber ASC");
-$stmtStep->bind_param("i", $id);
-$stmtStep->execute();
-$steps = $stmtStep->get_result();
+$recipe = $conn->query("SELECT * FROM Recipe WHERE RecipeID = $id")->fetch_assoc();
+$steps = $conn->query("SELECT * FROM RecipeDirections WHERE RecipeID = $id ORDER BY StepNumber ASC");
+$ings = $conn->query("SELECT i.FoodItem, c.Quantity FROM Contains c JOIN Ingredient i ON c.IngredientID = i.IngredientID WHERE c.RecipeID = $id");
 ?>
 <!DOCTYPE html>
 <html>
-<head>
-    <title><?= htmlspecialchars($recipe['RecipeName']) ?></title>
-    <link rel="stylesheet" href="style.css">
-</head>
+<head><link rel="stylesheet" href="style.css"></head>
 <body class="container">
     <a href="recipes.php">← Back</a>
     <div class="card" style="margin-top:20px;">
+        <img src="<?= $recipe['img_src'] ?>" style="width:100%; height:300px; object-fit:cover; border-radius:15px;">
         <h1><?= htmlspecialchars($recipe['RecipeName']) ?></h1>
-        <p>Prep: <?= $recipe['PrepTime'] ?>m | Cook: <?= $recipe['CookTime'] ?>m</p>
+        <p><a href="<?= $recipe['url'] ?>" target="_blank">View Original Source</a></p>
         
-        <h3>Ingredients</h3>
-        <ul>
-            <?php while($i = $ingredients->fetch_assoc()): ?>
-                <li><?= htmlspecialchars($i['Quantity'] ?: 'To taste') ?> <?= htmlspecialchars($i['FoodItem']) ?></li>
-            <?php endwhile; ?>
-        </ul>
-
-        <h3>Directions</h3>
-        <?php while($s = $steps->fetch_assoc()): ?>
-            <p><strong>Step <?= $s['StepNumber'] ?>:</strong> <?= htmlspecialchars($s['Instruction']) ?></p>
-        <?php endwhile; ?>
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+            <div>
+                <h3>Method</h3>
+                <?php while($s = $steps->fetch_assoc()) echo "<p><b>{$s['StepNumber']}.</b> {$s['Instruction']}</p>"; ?>
+            </div>
+            <div style="background:#f4f4f4; padding:15px; border-radius:10px;">
+                <h4>Nutrition (Per Serving)</h4>
+                <p>Fat: <?= $recipe['total_fat'] ?>g | Carbs: <?= $recipe['total_carb'] ?>g</p>
+                <p>Protein: <?= $recipe['protein'] ?>g | Sugar: <?= $recipe['total_sugars'] ?>g</p>
+                <hr>
+                <small>Vit C: <?= $recipe['vitamin_c'] ?>% | Iron: <?= $recipe['iron'] ?>%</small>
+            </div>
+        </div>
     </div>
 </body>
 </html>

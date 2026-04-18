@@ -38,7 +38,21 @@ CREATE TABLE Recipe (
     TotalTime INT,
     Servings INT,
     Yield INT,
-    Ratings FLOAT
+    Ratings FLOAT,
+    url TEXT,
+    img_src TEXT,
+    total_fat FLOAT,
+    sat_fat FLOAT,
+    cholesterol FLOAT,
+    sodium FLOAT,
+    total_carb FLOAT,
+    dietary_fiber FLOAT,
+    total_sugars FLOAT,
+    protein FLOAT,
+    vitamin_c FLOAT,
+    calcium FLOAT,
+    iron FLOAT,
+    potassium FLOAT
 );
 
 -- 4. RecipeDirections Table (Decomposed for BCNF)

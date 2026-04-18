@@ -2,6 +2,76 @@
 session_start(); 
 require_once '../includes/database_functions.php'; 
 
+// Functionality: Keep search logic identical
+$search = $_GET['search'] ?? '';
+$searchParam = "%$search%";
+
+$sql = "SELECT * FROM Ingredient WHERE FoodItem LIKE ? OR Category LIKE ? ORDER BY FoodItem ASC";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ss", $searchParam, $searchParam);
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pantry | Culinary Compass</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: linear-gradient(135deg, #74b9ff, #55efc4); min-height: 100vh; }
+        .nav-bar { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; margin-bottom: 30px; }
+        .recipe-card { background: white; border-radius: 20px; overflow: hidden; transition: 0.3s; border: 1px solid #f0f0f0; display: flex; flex-direction: column; }
+        .recipe-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .card-content { padding: 25px; flex-grow: 1; }
+        .card-tag { font-size: 0.7rem; text-transform: uppercase; color: #00b894; font-weight: 700; margin-bottom: 10px; display: block; }
+        .card-actions { padding: 20px 25px; background: #fafafa; border-top: 1px solid #f0f0f0; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body class="container">
+    <nav class="nav-bar">
+        <h1 style="margin:0; color:white;">Ingredient Pantry</h1>
+        <a href="homepage.php" class="btn" style="background:#2d3436; color:white; text-decoration:none; padding:10px 20px; border-radius:10px;">🏠 Home</a>
+    </nav>
+
+    <!-- Functionality: GET Method for Search -->
+    <form method="GET" style="margin-bottom: 40px; display: flex; gap: 10px;">
+        <input type="text" name="search" placeholder="Search pantry items..." value="<?= htmlspecialchars($search) ?>" style="flex:1; padding:15px; border-radius:12px; border:none;">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="recipe-grid">
+        <?php while ($i = $result->fetch_assoc()): ?>
+            <div class="recipe-card">
+                <div class="card-content">
+                    <span class="card-tag"><?= htmlspecialchars($i['Category'] ?: 'General') ?></span>
+                    <h2 style="margin:0 0 10px 0;"><?= htmlspecialchars($i['FoodItem']) ?></h2>
+                    <p style="color:#636e72; font-size:0.9rem;">🔥 <?= $i['Calories'] ?> kcal | 💪 <?= $i['Protein'] ?>g P</p>
+                </div>
+                <div class="card-actions">
+                    <!-- Functionality: Direct ID links -->
+                    <a href="view_ingredient.php?id=<?= $i['IngredientID'] ?>" class="btn" style="background:#dfe6e9; color:#2d3436; text-decoration:none; padding:8px 15px; border-radius:8px;">Details</a>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <a href="edit_ingredient.php?id=<?= $i['IngredientID'] ?>" style="color:#636e72; text-decoration:none;">✎</a>
+                        <a href="delete_ingredient.php?id=<?= $i['IngredientID'] ?>" style="color:#e74c3c; text-decoration:none;" onclick="return confirm('Delete item?')">🗑</a>
+                    </div>
+                </div>
+            </div>
+        <?php endwhile; ?>
+    </div>
+    <a href="add_ingredient.php" class="fab" style="position:fixed; bottom:30px; right:30px; background:#00b894; color:white; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:24px; box-shadow:0 10px 20px rgba(0,0,0,0.1);">+</a>
+</body>
+</html>
+
+
+
+
+<!-- <?php 
+session_start(); 
+require_once '../includes/database_functions.php'; 
+
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $searchParam = "%$search%";
 
@@ -139,4 +209,4 @@ $result = $stmt->get_result();
         <?php endif; ?>
     </div>
 </body>
-</html>
+</html> -->
