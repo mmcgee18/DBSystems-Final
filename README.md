@@ -16,3 +16,8 @@ Backend: PHP & Python <br>
 Database: MySQL (via MariaDB) <br>
 Management: phpMyAdmin & XAMPP <br>
 Interface: HTML5, CSS3, JavaScript <br>
+<hr>
+During the development and documentation of this project, the following AI tools were used to assist with specific tasks: <br>
+Google AI Mode: Used for editing assistance to improve grammar, clarity, and dashboard functionality. Prompts and outputs were carefully reviewed and significantly revised by the author. <br>
+Google AI Mode: Used as an AI-assisted coding tool for generating small, repetitive code snippets and debugging existing functions. The generated code was thoroughly tested and integrated into the project by human developers. <br>
+The author(s) take full responsibility for the content and functionality of this work and have ensured that all AI-generated content was reviewed for accuracy and relevance. <br>
